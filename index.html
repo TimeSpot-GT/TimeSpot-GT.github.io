@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>TimeSpot | Benchmarking Geo-Temporal Understanding in VLMs</title>
+<meta name="description" content="TimeSpot: comprehensive benchmark for evaluating temporal reasoning in vision-language models. Includes dataset, tasks, evaluation metrics, and full results." />
+
+    <meta name="author" content="Computational Intelligence and Operations Laboratory (CIOL) and Qatar Computing Research Institute (QCRI)">
+    <meta property="og:image" content="images/overview_fig.png">
+    <link rel="shortcut icon" href="images/logo.png" type="image/png">
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- HEADER -->
+    <header>
+      <div class="brand">
+        <div class="logo">
+          <img src="images/logo.png" alt="TimeSpot logo" />
+        </div>
+        <div>
+          <h1>TimeSpot</h1>
+          <div class="subtitle">Benchmarking Geo-Temporal Understanding in VLMs</div>
+        </div>
+      </div>
+<nav aria-label="Main" style="position: relative;">
+  <ul style="list-style: none; margin: 0; padding: 0; display: flex; gap: 12px; align-items: center;">
+    <li><a href="#overview">Overview</a></li>
+    <!-- <li><a href="#benchmark">Benchmark</a></li> -->
+    <li><a href="#results">Results</a></li>
+    <li><a href="#results-methods">Takeways</a></li>
+    <li><a href="#cite">Cite</a></li>
+
+    <!-- Dropdown menu -->
+    <li style="position: relative;">
+  <a href="#" style="cursor: pointer;">More Papers ▼</a>
+  <ul style="display: none; position: absolute; top: 100%; left: 0; background: #040e16; color: #fff; padding: 8px 0; margin: 0; list-style: none; border-radius: 6px; min-width: 250px;">
+    <li style="padding: 4px 16px; width: 100%;">
+      <a href="https://spatialab-reasoning.github.io/" style="color: #fff; text-decoration: none;">SpatiaLab (ICLR'26)</a>
+    </li>
+    <!-- Add more papers here -->
+  </ul>
+</li>
+  </ul>
+</nav>
+
+
+<script>
+  // Simple hover dropdown
+  const dropdown = document.querySelector('nav li[style*="position: relative;"]');
+  const menu = dropdown.querySelector('ul');
+
+  dropdown.addEventListener('mouseenter', () => menu.style.display = 'block');
+  dropdown.addEventListener('mouseleave', () => menu.style.display = 'none');
+</script>
+    </header>
+
+    <!-- HERO -->
+    <main class="hero" id="overview">
+      <div class="hero-grid-single">
+        <div>
+          <!-- <div class="pill">ICML 2026</div> -->
+          <div class="pill">1,455 VQA pairs</div>
+          <div class="pill">Geographic Reasoning</div>
+          <div class="pill">Temporal Reasoning</div>
+          <div class="pill">Rubric-based Open-ended Evaluation</div>
+
+          <h2 style="margin-top:14px; font-size: 36px;">TimeSpot: Benchmarking Geo-Temporal Understanding in Vision–Language Models in Real-World Settings</h2>
+          <p class="meta" style="margin-top:10px;font-size:15px; font-weight: bold; width: 80%; color: rgb(191, 214, 245);">
+            Azmine Toushik Wasi*, Shahriyar Zaman Ridoy*, Koushik Ahamed Tonmoy, Kinga Tshering, S. M. Muhtasimul Hasan, Wahid Faisal, Tasnim Mohiuddin, Md Rizwan Parvez</p>
+          <p style="margin-top:-2px;font-size:13px;font-weight: normal; width: 70%; color: rgb(146, 173, 211);">
+            Computational Intelligence and Operations Laboratory (CIOL) • 
+            Shahjalal University of Science and Technology (SUST) • 
+            North South University (NSU) •
+            Qatar Computing Research Institute (QCRI)
+          </p>
+          <p style="margin-top:-2px;font-size:13px;font-weight: normal; width: 70%; color: rgb(146, 173, 211);">
+           Correspondence: <i>shahriyar.zaman01@gmail.com, mparvez@hbku.edu.qa</i>
+          </p>
+          <!-- <p style="margin-top:-2px;font-size:13px;font-weight: normal; width: 70%; color: rgb(146, 173, 211);">
+           Submitted to <b>The Forty-Third International Conference on Machine Learning (ICML 2026)</b>
+          </p> -->
+          <p style="margin-top:12px;" >
+            <a class="download-btn" href="https://openreview.net/forum?id=ZLTbUvfej2" download>📄 OpenReview</a>
+            <a class="download-btn" href="#" download>📄 arXiv</a>
+            <!-- <a class="download-btn" href="" download>🤗 Hugging Face</a>
+            <a class="download-btn" href="" download>🤗 HF (Paper)</a>
+            <a class="download-btn" href="" download>Kaggle </a>
+            <a class="download-btn" href="" download>GitHub</a> -->
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Boxed overview figure (inside .wrap content width) -->
+    <div class="figure" style="margin-top:14px">
+    <p class="lead" style="text-align: left; margin-bottom: 16px; color: rgb(221, 221, 221);">
+Geo-temporal understanding—the ability to infer location, time, and contextual properties from visual input—is crucial for applications such as disaster management, traffic planning, navigation, world modeling, and geography education, yet current vision–language models (VLMs) struggle with temporal reasoning and physically grounded spatial cues. To address this, we introduce <strong><span style="font-variant: small-caps;">TimeSpot</span></strong>, a benchmark of 1,455 ground-level images from 80 countries that evaluates structured prediction of temporal (season, month, time of day, daylight phase) and geographic attributes (continent, country, climate zone, environment type, latitude–longitude) under real-world uncertainty, revealing that existing VLMs perform poorly and highlighting the need for new approaches to robust, physically grounded geo-temporal reasoning.
+</p>
+
+      <img class="resp" style="border-radius: 90px;" src="images/overview_fig.png" alt="TimeSpot overview figure (boxed)" />
+    </div>
+
+    <!-- BENCHMARK -->
+    <section id="benchmark">
+      <h2>Benchmark Structure and Task Categories</h2>
+  <!-- <p class="meta">TimeSpot comprises comprehensive QA items organized into 6 main temporal reasoning categories and multiple subcategories. It supports both multiple-choice and open-ended task formats.</p> -->
+
+      <!-- <div class="columns" style="margin-top:14px">
+        <div>
+          <div class="table-wrap">
+
+          </div>
+        </div>
+
+        <aside class="figure figure--light">
+          <img class="resp" data-zoomable="true" style="width: 80%;" src="images/pie-chart.png" alt="SpatiaLab overview figure" tabindex="0" role="button" aria-label="Open pie chart">
+          <span class="zoom-hint" aria-hidden="true">Click to zoom</span>
+        </aside>
+      </div> -->
+
+                  <table>
+  <thead>
+    <tr>
+      <th>Axis</th>
+      <th>Field</th>
+      <th>Categories (top shown)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Temporal -->
+    <tr>
+      <td rowspan="6">Temporal</td>
+      <td>Season</td>
+      <td>Summer (400), Fall (399), Spring (335), Winter (321)</td>
+    </tr>
+    <tr>
+      <td>Daylight phase</td>
+      <td>Afternoon (584), Night (287), Sunset (210), Morning (203), Midday (124), Sunrise (47)</td>
+    </tr>
+    <tr>
+      <td>Month</td>
+      <td>12 months represented; top: August (163), September (146), July (145), March (131)</td>
+    </tr>
+    <tr>
+      <td>Hemispheric tag</td>
+      <td>Northern Hemisphere Summer (703), Northern Hemisphere Winter (615), Southern Hemisphere Winter (81), Southern Hemisphere Summer (56)</td>
+    </tr>
+    <tr>
+      <td>Time coverage</td>
+      <td>Day (1182), Night (273)</td>
+    </tr>
+    <tr>
+      <td>Hour range</td>
+      <td>Full 0–23; densest 08–18</td>
+    </tr>
+
+    <!-- Geography -->
+    <tr>
+      <td rowspan="5">Geography</td>
+      <td>Continents</td>
+      <td>Asia (529), Europe (430), North America (326), South America (170)</td>
+    </tr>
+    <tr>
+      <td>Countries</td>
+      <td>82 unique; top: USA (196), Russia (97), Japan (67), Italy (65), China (58)</td>
+    </tr>
+    <tr>
+      <td>Climate</td>
+      <td>Temperate (C) (582), Continental (D) (396), Tropical (A) (274), Arid (B) (180), Polar (E) (23)</td>
+    </tr>
+    <tr>
+      <td>Environment type</td>
+      <td>Urban (648), Rural (202), Mountain (193), Coastal (181), Suburban (118), Desert (113)</td>
+    </tr>
+    <tr>
+      <td>Lat/Lon span</td>
+      <td>lat -54.80 to 71.96, lon -173.24 to 170.31</td>
+    </tr>
+
+    <!-- Cues -->
+    <tr>
+      <td rowspan="2">Cues</td>
+      <td>Primary temporal cues</td>
+      <td>Sun/Shadows (573), Vegetation (325), Other (289), Snow/Ice (122), Human Clothing (95), Agricultural Activity (51)</td>
+    </tr>
+    <tr>
+      <td>Primary geolocation cues</td>
+      <td>Architecture (355), Natural Biome (354), Topography (Mountains/Coast) (295), Road Signage/Language (236), Vehicles (156), Other (58)</td>
+    </tr>
+  </tbody>
+</table>
+    
+    </section>
+
+    <!-- TASKS -->
+    <section id="tasks">
+      <h2>Examples</h2>
+  <p class="meta">Every temporal reasoning category includes MCQ and open-ended formats to measure discriminative accuracy and generative reasoning capacity. Representative examples below.</p>
+
+      <div style="margin-top:12px;">
+        <div style="padding:12px;border-radius:10px;background:rgba(255,255,255,0.01);text-align:center">
+          <img class="resp" src="images/examples.png" alt="Combined example: MCQ and Open-ended" />
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section id="results">
+      <h2>Results</h2>
+  <p class="meta">Evaluation results for TimeSpot benchmark across multiple vision-language models, including both proprietary and open-source variants.</p>
+
+      <!-- Table 2: MCQ -->
+      <h3 style="margin-top:12px">Multiple Choice Evaluation Accuracy (%) on TimeSpot-MCQ</h3>
+      <div class="table-wrap" aria-labelledby="table2">
+<table>
+  <thead>
+    <tr>
+      <th>Model</th>
+      <th>Cnt.</th>
+      <th>Cou.</th>
+      <th>Clim.</th>
+      <th>Env.</th>
+      <th>Lat.°</th>
+      <th>Long.°</th>
+      <th>Dist.(km)</th>
+      <th>Season</th>
+      <th>Month</th>
+      <th>Time (Ac.)</th>
+      <th>Time (MAE)</th>
+      <th>DLP</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td colspan="13"><strong>Proprietary Models</strong></td></tr>
+    <tr><td>GPT-4o-mini</td><td>82.68</td><td>49.14</td><td>50.93</td><td>57.87</td><td>12.40</td><td>24.70</td><td>2827.07</td><td>47.08</td><td>22.34</td><td>30.32</td><td>3:54</td><td>31.55</td></tr>
+    <tr><td>GPT-5-mini</td><td>83.62</td><td>68.27</td><td>72.47</td><td>60.01</td><td>4.72</td><td>15.64</td><td>1389.79</td><td>58.43</td><td>34.27</td><td>21.55</td><td>4:10</td><td>44.60</td></tr>
+    <tr><td>Gemini-2.0-Flash</td><td>89.07</td><td>76.91</td><td>68.52</td><td>60.96</td><td>3.32</td><td>11.23</td><td>994.30</td><td>49.76</td><td>22.89</td><td>27.35</td><td>4:22</td><td>30.24</td></tr>
+    <tr><td>Gemini-2.5-Flash</td><td>90.51</td><td>77.25</td><td>71.34</td><td>64.32</td><td>3.05</td><td>10.38</td><td>917.61</td><td>50.92</td><td>23.91</td><td>25.15</td><td>3:56</td><td>41.92</td></tr>
+    <tr><td>Claude 3.5 Haiku</td><td>77.25</td><td>55.53</td><td>61.86</td><td>55.74</td><td>6.85</td><td>27.51</td><td>2269.86</td><td>44.12</td><td>19.04</td><td>23.09</td><td>4:14</td><td>30.93</td></tr>
+    <tr><td>Mistral Medium 3.1</td><td>75.88</td><td>52.85</td><td>66.67</td><td>61.72</td><td>6.37</td><td>22.62</td><td>2045.61</td><td>36.84</td><td>15.26</td><td>30.73</td><td>3:36</td><td>36.01</td></tr>
+
+    <tr><td colspan="13"><strong>Open-Source Models (≤11B)</strong></td></tr>
+    <tr><td>InternVL3.5-1B</td><td>43.02</td><td>14.15</td><td>32.50</td><td>53.54</td><td>44.68</td><td>4378.92</td><td>7700.42</td><td>30.65</td><td>3.78</td><td>7.77</td><td>11:45</td><td>35.80</td></tr>
+    <tr><td>InternVL3.5-2B</td><td>60.00</td><td>29.41</td><td>51.82</td><td>57.80</td><td>13.11</td><td>43.71</td><td>3959.29</td><td>36.29</td><td>5.70</td><td>27.80</td><td>4:30</td><td>24.05</td></tr>
+    <tr><td>Qwen-VL2.5-3B-Instruct</td><td>22.40</td><td>13.47</td><td>18.83</td><td>44.53</td><td>16.18</td><td>130.98</td><td>8231.18</td><td>27.49</td><td>9.96</td><td>22.06</td><td>4:34</td><td>8.52</td></tr>
+    <tr><td>InternVL3.5-4B</td><td>60.79</td><td>30.12</td><td>57.77</td><td>56.74</td><td>15.34</td><td>44.15</td><td>4236.77</td><td>37.55</td><td>12.03</td><td>29.33</td><td>4:10</td><td>41.61</td></tr>
+    <tr><td>Qwen-VL2.5-7B-Instruct</td><td>85.70</td><td>73.96</td><td>70.86</td><td>75.21</td><td>32.94</td><td>21.46</td><td>4719.95</td><td>61.46</td><td>44.96</td><td>25.68</td><td>3:47</td><td>64.09</td></tr>
+    <tr><td>Llama-3.2-11B-Vision-Instruct</td><td>74.22</td><td>55.73</td><td>57.12</td><td>57.61</td><td>5.85</td><td>26.57</td><td>2072.35</td><td>43.50</td><td>16.68</td><td>25.74</td><td>4:18</td><td>43.57</td></tr>
+
+    <tr><td colspan="13"><strong>Open-Source Models (>11B)</strong></td></tr>
+    <tr><td>Gemma-3-27B-it</td><td>79.59</td><td>54.02</td><td>60.41</td><td>53.12</td><td>6.83</td><td>23.58</td><td>2063.93</td><td>44.81</td><td>17.11</td><td>26.34</td><td>4:28</td><td>30.86</td></tr>
+    <tr><td>Qwen-VL2.5-32B-Instruct</td><td>78.56</td><td>57.11</td><td>62.95</td><td>60.82</td><td>6.27</td><td>24.02</td><td>2010.12</td><td>44.81</td><td>17.86</td><td>31.10</td><td>3:44</td><td>44.54</td></tr>
+    <tr><td>Internvl3-78b</td><td>77.46</td><td>53.26</td><td>71.61</td><td>61.37</td><td>7.42</td><td>23.63</td><td>2180.29</td><td>45.91</td><td>16.43</td><td>29.64</td><td>4:07</td><td>34.91</td></tr>
+    <tr><td>Qwen-VL2.5-72B-Instruct</td><td>77.94</td><td>58.28</td><td>65.15</td><td>58.14</td><td>5.11</td><td>19.33</td><td>1711.42</td><td>44.47</td><td>18.28</td><td>28.71</td><td>4:00</td><td>36.84</td></tr>
+    <tr><td>Llama-3.2-90B-Vision-Instruct</td><td>78.08</td><td>53.54</td><td>63.85</td><td>59.04</td><td>7.05</td><td>26.79</td><td>2284.85</td><td>45.15</td><td>19.72</td><td>23.33</td><td>4:29</td><td>33.88</td></tr>
+    <tr><td>GLM-4.5V-106B-MoE</td><td>85.32</td><td>69.68</td><td>62.09</td><td>62.51</td><td>4.23</td><td>14.09</td><td>1280.87</td><td>57.55</td><td>36.04</td><td>30.51</td><td>4:09</td><td>42.45</td></tr>
+
+    <tr><td colspan="13"><strong>Reasoning Models</strong></td></tr>
+    <tr><td>o4-mini</td><td>82.39</td><td>71.82</td><td>73.06</td><td>66.64</td><td>4.85</td><td>15.39</td><td>1359.96</td><td>65.81</td><td>48.20</td><td>23.91</td><td>4:04</td><td>51.79</td></tr>
+    <tr><td>Gemini-2-Flash-Thinking</td><td>88.66</td><td>76.22</td><td>66.73</td><td>59.93</td><td>3.44</td><td>11.70</td><td>1024.14</td><td>49.28</td><td>22.68</td><td>27.49</td><td>4:22</td><td>29.76</td></tr>
+    <tr><td>Gemini-2.5-Flash-Thinking</td><td>90.31</td><td>77.59</td><td>70.86</td><td>64.47</td><td>3.04</td><td>9.85</td><td>892.54</td><td>51.13</td><td>24.26</td><td>22.19</td><td>4:03</td><td>36.56</td></tr>
+    <tr><td>Kimi-VL-A3B-Thinking-2506</td><td>58.90</td><td>40.69</td><td>54.84</td><td>59.31</td><td>16.00</td><td>39.83</td><td>4034.15</td><td>39.72</td><td>12.65</td><td>32.23</td><td>4:18</td><td>25.70</td></tr>
+    <tr><td>GLM-4.1V-9B-Thinking</td><td>84.44</td><td>68.34</td><td>70.19</td><td>68.54</td><td>4.34</td><td>23.01</td><td>1788.77</td><td>58.02</td><td>38.88</td><td>33.74</td><td>3:58</td><td>47.76</td></tr>
+  </tbody>
+        </table>
+
+<p style="font-size: smaller; color: rgb(158, 162, 199);">
+<strong>Abbreviations:</strong> <strong>Cnt.</strong> → Continent, <strong>Cou.</strong> → Country, <strong>Clim.</strong> → Climate Zone, <strong>Env.</strong> → Environment Type, <strong>Lat.°</strong> → Latitude in degrees, <strong>Long.°</strong> → Longitude in degrees, <strong>Dist.(km) (MD)</strong> → Mean distance from actual location in kilometers, <strong>DLP</strong> → Day-light phase. <strong>Time (Ac.)</strong> denotes accuracy if the model predicted the time correctly within a 1-hour window, and <strong>Time (MAE)</strong> shows the mean error in HH:MM format. “Ac.” refers to accuracy.
+</p>
+
+      </div>
+
+
+    <section id="results-methods">
+      <div style="margin-top:18px;padding:12px;border-radius:10px;background:rgba(255,255,255,0.02)">
+        <h3>Key Takeways</h3>
+      <div class="meta">
+    <ul>
+      <li style="padding-top: 2px;padding-bottom: 2px;">
+        <strong>Overall Findings:</strong>
+        <ul>
+          <li style="padding-top: 2px;padding-bottom: 2px;">
+            <strong>Temporal Inference is a Major Bottleneck:</strong> Time-of-day accuracy is extremely low across all models (22–34%), peaking at 33.74% (GLM-4.1V-9B-Thinking), with MAE ≈ 4 hours.
+          </li>
+          <li style="padding-top: 2px;padding-bottom: 2px;">
+            <strong>Geodesic Disconnect:</strong> High coarse-grained localization often coexists with large metric and temporal errors. Top models (Gemini-2.5-Flash-Thinking) reach ~77.59% country accuracy but median geodesic error = 892.54 km.
+          </li>
+          <li style="padding-top: 2px;padding-bottom: 2px;">
+            <strong>Proprietary Models Lead:</strong> Closed-source models outperform open-source in spatial reasoning, metric localization, and calibration.
+          </li>
+          <li style="padding-top: 2px;padding-bottom: 2px;">
+            <strong>Open-Source Variance:</strong> GLM-4.5V-106B-MoE attains competitive country accuracy (69.68%) but weaker metric grounding; Qwen-VL2.5-7B fails in coordinate estimation (MD 4719 km).
+          </li>
+          <li style="padding-top: 2px;padding-bottom: 2px;">
+            <strong>Reasoning-Augmented Models Excel:</strong> Gemini-2.5-Flash-Thinking, o4-mini outperform base counterparts across geolocation and temporal tasks, demonstrating multi-step inference benefits.
+          </li>
+        </ul>
+      </li>
+
+      <li style="padding-top: 2px;padding-bottom: 2px;">
+        <strong>Geo-Temporal Consistency & Confidence:</strong>
+        <ul>
+          <li style="padding-top: 2px;padding-bottom: 2px;">Even strong models exhibit physical consistency violations (phase-time mismatches, season-month inconsistencies, spatial tail errors).</li>
+          <li style="padding-top: 2px;padding-bottom: 2px;">Calibration failures: all models show overconfidence on fine-grained temporal tasks (high ECE), signaling low reliability under ambiguous cues.</li>
+        </ul>
+      </li>
+
+      <li style="padding-top: 2px;padding-bottom: 2px;">
+        <strong>Error Analysis:</strong>
+        <ul>
+          <li style="padding-top: 2px;padding-bottom: 2px;">
+            <strong>Seasonal Collapse:</strong> Summer is reliably predicted; Autumn collapses to 0% accuracy, showing models rely on static color cues rather than true phenology.
+          </li>
+          <li style="padding-top: 2px;padding-bottom: 2px;">
+            <strong>Daylight Phase Blindspots:</strong> Midday/Afternoon easier; Night and Sunrise/Sunset accuracy remains <35%, often confusing dawn/dusk.
+          </li>
+          <li style="padding-top: 2px;padding-bottom: 2px;">
+            <strong>Time Anchoring:</strong> Predictions collapse to round-hour anchors (09:00, 12:00, 18:00), indicating failure to compute continuous solar geometry.
+          </li>
+          <li style="padding-top: 2px;padding-bottom: 2px;">
+            <strong>Spatial Drift & Biases:</strong> Near-miss country errors (e.g., Bangladesh vs India); default to Temperate/Urban, poor performance in Polar, Arid, and Continental climates.
+          </li>
+        </ul>
+      </li>
+
+      <li style="padding-top: 2px;padding-bottom: 2px;">
+        <strong>Qualitative Error Analysis:</strong>
+        <ul>
+          <li style="padding-top: 2px;padding-bottom: 2px;">Low-Light Breakdowns: Night/twilight scenes cause drastic drift; solar cues absence leads to round-hour guesses.</li>
+          <li style="padding-top: 2px;padding-bottom: 2px;">Urban Occlusion: Street canyons compress apparent sun elevation → late time predictions.</li>
+          <li style="padding-top: 2px;padding-bottom: 2px;">Missing Shorelines: Coastal/elevation cues systematically ignored; coordinates shift inland.</li>
+          <li style="padding-top: 2px;padding-bottom: 2px;">Shortcut Exploitation: Models rely on human-centric cues (architecture/signage), failing to use environmental cues (biome, topography) for precise geolocation or temporal estimation.</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <h3 style="margin-top:12px">Benchmark Design & Evaluation Methods</h3>
+  <div class="meta">
+    <ul>
+      <li style="padding-top: 2px;padding-bottom: 2px;">
+        <strong>Dataset Construction & Protocol:</strong>
+        <ul>
+          <li style="padding-top: 2px;padding-bottom: 2px;">1,455 ground-level images from 80 countries; landmarks and heavy text removed to force reliance on physical cues (illumination, shadows, sky, vegetation, materials).</li>
+          <li style="padding-top: 2px;padding-bottom: 2px;">Structured 9-field prediction: 4 temporal (season, month, local time, daylight phase) + 5 geographic (continent, country, climate, environment type, lat/lon).</li>
+          <li style="padding-top: 2px;padding-bottom: 2px;">Annotations verified with metadata (timestamps, GPS, solar ephemerides) and cross-checked manually for physical validity.</li>
+        </ul>
+      </li>
+
+      <li style="padding-top: 2px;padding-bottom: 2px;">
+        <strong>Evaluation Metrics:</strong>
+        <ul>
+          <li style="padding-top: 2px;padding-bottom: 2px;">Geographic: Top-1 categorical accuracy for region/climate; MAE for lat/lon; mean/median great-circle distance (MD) in km.</li>
+          <li style="padding-top: 2px;padding-bottom: 2px;">Temporal: Top-1 accuracy, ±1-hour window accuracy, HH:MM MAE for local time.</li>
+          <li style="padding-top: 2px;padding-bottom: 2px;">LLM-as-a-Judge: Semantic alignment for synonyms (USA vs United States, Fall vs Autumn) handled by Gemini-2.5-Flash judge model.</li>
+        </ul>
+      </li>
+
+      <li style="padding-top: 2px;padding-bottom: 2px;">
+        <strong>Performance Improvement Approaches:</strong>
+        <ul>
+          <li style="padding-top: 2px;padding-bottom: 2px;">
+            <strong>Supervised Fine-Tuning (SFT):</strong> Fine-tuning Qwen-VL2.5-3B-Instruct on 40% of TIMESPOT improved categorical geo-semantic accuracy (Country: 14.2% → 19.2%), but time predictions remain unstable.
+          </li>
+          <li style="padding-top: 2px;padding-bottom: 2px;">
+            <strong>Recommendations:</strong> Future models should include physical inductive biases (latitude/solar conditioning), constraint-aware reasoning (phase/time/longitude matching), and augmentations for extreme lighting and polar environments.
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</div>
+</section>
+    <!-- CITE & CONTACT -->
+    <section id="cite">
+      <h2>Citation</h2>
+      <p class="meta">Please cite the paper as below:</p>
+      <pre style="background:rgba(255,255,255,0.02);padding:12px;border-radius:8px;color:var(--white)">
+@misc{
+wasi2026timespot,
+title={TimeSpot: Benchmarking Geo-Temporal Understanding in Vision{\textendash}Language Models in Real-World Settings},
+author={Azmine Toushik Wasi and Shahriyar Zaman Ridoy and Koushik Ahamed Tonmoy and Kinga Tshering and S. M. Muhtasimul Hasan and Wahid Faisal and Tasnim Mohiuddin and Md Rizwan Parvez},
+year={2026},
+url={https://openreview.net/forum?id=ZLTbUvfej2}
+}
+      </pre>
+    </section>
+
+    <!-- Institution Logos -->
+    <section style="margin-top:28px;">
+      <div style="display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;margin:0 auto;max-width:1000px;padding:24px;background:rgb(231, 231, 231);border-radius:12px">
+        <!-- Partner institution logos -->
+        <img src="images/affiliations/ciol-3.png" alt="CIOL Logo" style="height:64px;width:auto;object-fit:contain;filter:brightness(0.9)">
+        <img src="images/affiliations/North_South_University_Monogram.svg" alt="NSU Logo" style="height:64px;width:auto;object-fit:contain;filter:brightness(0.9)">
+        <img src="images/affiliations/sust.png" alt="SUST Logo" style="height:64px;width:auto;object-fit:contain;filter:brightness(0.9)">
+        <img src="images/affiliations/qcri.png" alt="QCRI Logo" style="height:64px;width:auto;object-fit:contain;filter:brightness(0.9)">
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // smooth scroll for nav links
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click', e=>{
+        e.preventDefault();
+        const id = a.getAttribute('href').slice(1);
+        const el = document.getElementById(id);
+        if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+      });
+    });
+  </script>
+  <script>
+    // Click-to-zoom for images with data-zoomable — improved to inline SVGs so they render reliably
+    (function(){
+      const zoomables = document.querySelectorAll('img[data-zoomable]');
+      if(!zoomables.length) return;
+
+      // create backdrop element
+      const backdrop = document.createElement('div');
+      backdrop.className = 'zoom-backdrop';
+      backdrop.setAttribute('aria-hidden','true');
+      document.body.appendChild(backdrop);
+
+      async function openZoom(src, alt, original){
+        backdrop.innerHTML = '';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'zoomed-img';
+
+        // If SVG, try to fetch and inline it for reliable rendering
+        if(src && src.toLowerCase().endsWith('.svg')){
+          try{
+            const res = await fetch(src, {cache: 'no-store'});
+            if(res.ok){
+              const text = await res.text();
+              // insert raw svg markup
+              wrapper.innerHTML = text;
+              const svg = wrapper.querySelector('svg');
+              if(svg){
+                svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+                svg.style.maxHeight = '80vh';
+                svg.style.maxWidth = '95vw';
+                svg.style.display = 'block';
+              } else {
+                // fallback to img element if parsing failed
+                const img = document.createElement('img'); img.src = src; img.alt = alt||''; wrapper.appendChild(img);
+              }
+            } else {
+              const img = document.createElement('img'); img.src = src; img.alt = alt||''; wrapper.appendChild(img);
+            }
+          }catch(err){
+            const img = document.createElement('img'); img.src = src; img.alt = alt||''; wrapper.appendChild(img);
+          }
+        } else {
+          const img = document.createElement('img'); img.src = src; img.alt = alt||''; wrapper.appendChild(img);
+        }
+
+        backdrop.appendChild(wrapper);
+        backdrop.classList.add('open');
+        // trap focus
+        wrapper.tabIndex = -1;
+        wrapper.focus();
+        // allow close on click
+        backdrop.addEventListener('click', backdropClose);
+        document.addEventListener('keydown', escClose);
+      }
+
+      function backdropClose(e){
+        if(e.target === backdrop) closeZoom();
+      }
+
+      function escClose(e){
+        if(e.key === 'Escape') closeZoom();
+      }
+
+      function closeZoom(){
+        backdrop.classList.remove('open');
+        backdrop.removeEventListener('click', backdropClose);
+        document.removeEventListener('keydown', escClose);
+        backdrop.innerHTML = '';
+      }
+
+      zoomables.forEach(img=>{
+        img.addEventListener('click', ()=> openZoom(img.src, img.alt, img));
+        img.addEventListener('keypress', (e)=>{ if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openZoom(img.src, img.alt, img); }});
+      });
+    })();
+  </script>
+</body>
+</html>
